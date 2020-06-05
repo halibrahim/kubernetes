@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: csharp-project-mongo
+spec:
+  type: NodePort
+  ports:
+  - port: 27017
+  selector:
+    app: csharp-project-mongo
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: csharp-project-mongo
+spec:
+  selector:
+    matchLabels:
+      app: csharp-project-mongo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: csharp-project-mongo
+    spec:
+      containers:
+      - image: mongo:4.2.7
+        name: mongo
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: mongouser
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: YCri0140PXDrs2YwxrrR
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: csharp-project-mongo-persistent-storage
+          mountPath: /data/db
+      volumes:
+      - name: csharp-project-mongo-persistent-storage
+        persistentVolumeClaim:
+          claimName: csharp-project-mongo-pv-claim
